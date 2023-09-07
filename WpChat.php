@@ -37,6 +37,7 @@ function wpchat_activate(){
     if(!$success){
         wp_die('WpChat plugin failed to activate.');
     }
+    wpchat_create_demo_page();
 }
 /**
  * Call deactivate function. If it fails, call wp_die function.
@@ -58,7 +59,12 @@ function wpchat_register_routes() {
  * Enqueue scripts for plugin.
  */
 function wpchat_enqueue_scripts(){
-    wp_enqueue_script('wpchatJS', WPCHAT_PLUGIN_URL . 'js/wpchat.js', array('jquery'), '0.1', true);
+    //Bootstrap
+    wp_enqueue_script('bootstrapJS', WPCHAT_PLUGIN_URL . 'JS/bootstrap.bundle.min.js', array(), '5.3.1', true);
+    wp_enqueue_style('bootstrapCSS', WPCHAT_PLUGIN_URL . 'Styles/bootstrap.min.css', array(), '5.3.1', 'all');
+
+    wp_enqueue_script('wpchatJS', WPCHAT_PLUGIN_URL . 'JS/wpchat.js', array('jquery'), '0.1', true);
+    wp_enqueue_style('wpchatGlobalCSS', WPCHAT_PLUGIN_URL . 'Styles/global.css', array(), '0.1', 'all');
     wp_localize_script('wpchatJS', 'WPCHAT', array(
         'baseUrl' => esc_url_raw(rest_url('wpchat/v1')),
         'nonce' => wp_create_nonce('wp_rest'),
@@ -71,10 +77,37 @@ function wpchat_enqueue_scripts(){
  * @param string $handle The script handle.
  */
 function wpchat_add_defer_attribute(string $tag, string $handle) {
-    if('wpchatJS' !== $handle) {
-        return $tag;
+    if('wpchatJS' === $handle) {
+        $tag = str_replace(' src', ' defer="defer" src', $tag);
     }
-    return str_replace(' src', ' defer="defer" src', $tag);
+    else if('bootstrapJS' === $handle){
+        $tag = str_replace(' src', ' defer="defer" src', $tag);
+    }
+    return $tag;
 }
-
+/**
+ * Create Demo page for plugin.
+ */
+function wpchat_create_demo_page(){
+    //delete demo page if exists
+    $page = get_page_by_path('WpChat-Demo');
+    if($page){
+        wp_delete_post($page->ID, true);
+    }
+    $page = new WP_Query(array(
+        'post_type' => 'page',
+        'name' => 'WpChat-Demo'
+    ));
+    if(!$page->have_posts()){
+        //read demo html file
+        $demo_page_content = file_get_contents(WPCHAT_PLUGIN_DIR . 'pages/demo.php');
+        $page = array(
+            'post_title' => 'WpChat Demo',
+            'post_content' => $demo_page_content,
+            'post_status' => 'publish',
+            'post_type' => 'page'
+        );
+        wp_insert_post($page);
+    }
+}
 ?>

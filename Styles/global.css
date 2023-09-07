@@ -1,0 +1,101 @@
+/* VARIABLES */
+:root{
+    --wpchatVeryLightBlue: #e6f4f9;
+    --WpchatLightBlue: #00a0d2;
+    --WpchatDarkBlue: #0073aa;
+    --WpchatLightGray: #f5f5f5;
+    --WpchatDarkGray: #333;
+    --WpchatWhite: #fff;
+    /* 80% of viewport*/
+    --wpchatMaxWidth: 80vw;
+    
+    --wpchatMaxHeight: 80vh;
+}
+.wpchat-window{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.wpchat-window-input-window{
+    display:flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: stretch;
+    min-width: 70vw;
+    max-width: 85vw;
+}
+.wpchat-send-button {
+    background: #00a0d2;
+    color: #fff;
+    border: 0;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    width:10%;
+}
+.wpchat-window-msg{
+    min-width: 70vw;
+    max-width: 85vw;
+    background-color: var(--WpchatLightGray);
+}
+.wpchat-input-field{
+    border: 1px solid var(--WpchatLightBlue);
+    width:90%
+}
+.wpchat-msg{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: start;
+    padding: 3px;
+}
+.wpchat-msg-content{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 8px;
+    border-radius: 10px;
+    background-color: var(--WpchatWhite);
+}
+.wpchat-msg-info{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: start;
+    padding: 8px;
+}
+.wpchat-msg-text{
+    font-size: 16px;
+    color: var(--WpchatDarkGray);
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+.wpchat-msg-info-text{
+    font-size: 12px;
+    color: var(--WpchatDarkGray);
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    width: 100%;
+    word-wrap: break-word;
+    word-break: break-all;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
