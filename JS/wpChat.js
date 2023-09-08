@@ -1,8 +1,17 @@
 // Version: 1.0.0
 //GLOBALS
+const DATETIME_FORMAT_OPTIONS = {
+    weekday: 'short',
+    formatMatcher: 'best fit',
+
+}
 var LAST_DATE = "";
 var LAST_ID = 0;
 var GROUP_ID = 500;//Default Group ID
+const SAMPLE_MESSAGE = {
+    "data": "This is a sample message.",
+    "metadata": "Jon Doe, 10:00 AM"
+};
 
 if(!!window.EventSource) {
     createSource();
@@ -49,6 +58,14 @@ async function createSource(){
         const data = JSON.parse(e.data);
         LAST_DATE = data[0].date;
         LAST_ID = data[0].id;
+        for(let i=0; i<data.length; i++){
+            const date = new Date(data[i].date);
+            const message = {
+                "data": data[i].message,
+                "metadata": "Jon Doe, "+date.toLocaleTimeString('en-US',DATETIME_FORMAT_OPTIONS)
+            }
+            presentMessage(message);
+        }
     }, false);
     source.addEventListener('open', function(e) {
         // Connection was opened.
