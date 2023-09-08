@@ -3,21 +3,22 @@
 const DATETIME_FORMAT_OPTIONS = {
     weekday: 'short',
     formatMatcher: 'best fit',
-
 }
 var LAST_DATE = "";
 var LAST_ID = 0;
 var GROUP_ID = 500;//Default Group ID
-const SAMPLE_MESSAGE = {
-    "data": "This is a sample message.",
-    "metadata": "Jon Doe, 10:00 AM"
-};
 
-if(!!window.EventSource) {
-    createSource();
-}
-else {
-    console.log("Your browser doesn't support SSE");
+/**
+ * Initialize WPChat.
+ */
+async function wpChatInit(){
+    //Check if EventSource is supported
+    if(!!window.EventSource) {
+        createSource();
+    }
+    else {
+        console.error("Your browser doesn't support SSE");
+    }
 }
 /**
  * Create a UUID.
@@ -32,6 +33,7 @@ function generateUUID() {
 }
 /**
  * Begin Heartbeat to keep connection alive.
+ * @param {string} uuid UUID of the connection.
  */ 
 async function beginHeartbeat(uuid){
     setInterval(function(){
@@ -54,11 +56,12 @@ async function createSource(){
     }
     const source = new EventSource(WPCHAT.baseUrl+'/sse?uuid='+uuid+date_param);
     source.addEventListener('newMessage', function(e) {
-        console.log(e.data);
         const data = JSON.parse(e.data);
+        //Get latest message date and id to be used in next request
         LAST_DATE = data[0].date;
         LAST_ID = data[0].id;
-        for(let i=0; i<data.length; i++){
+        //Most recent message is at the start of the array
+        for(let i=data.length-1; i>=0; i--){
             const date = new Date(data[i].date);
             const message = {
                 "data": data[i].message,
@@ -69,24 +72,24 @@ async function createSource(){
     }, false);
     source.addEventListener('open', function(e) {
         // Connection was opened.
-        console.log('Connection was opened.');
+        console.info('Connection was opened.');
         //beginHeartbeat(uuid);
     }
     , false);
     source.addEventListener('error', function(e) {
-        console.log('Error occurred. and connection was closed.');
+        console.warn('Error occurred. and connection was closed.');
         source.close();
     }
     , false);
     source.addEventListener('closeConnection', function(e) {
         // Connection was closed.
-        console.log('Connection was closed from the server.');
+        console.info('Connection was closed from the server.');
         source.close();
     }
     , false);
     source.addEventListener('expiredConnection', function(e) {
         // Connection was closed.
-        console.log('Connection has expired. Opening new connection.');
+        console.info('Connection has expired. Opening new connection.');
         source.close();
         //Open new connection
         createSource();
@@ -95,9 +98,9 @@ async function createSource(){
 }
 /**
  * Send message to server.
+ * @param {string} message Message to be sent.
  */
-async function sendMessage(){
-    const message = "Hello World! : "+generateUUID();
+async function sendMessage(message){
     const group_id = GROUP_ID;
     const xhr = new XMLHttpRequest();
     xhr.open('POST', WPCHAT.baseUrl+'/sendMessage', true);
@@ -136,8 +139,11 @@ async function createChatWindow(element_id){
 async function createChatInput(){
     const chatWindow = document.getElementById("wpChatWindow");
     if(chatWindow === null){
-        console.log("Chat Window not found. Please create chat window first.");
+        console.error("Chat Window not found. Please create chat window first.");
         return;
+    }
+    if(document.getElementById("wpChatInput") !== null){
+        document.getElementById("wpChatInput").remove();
     }
     const chatInput = document.createElement("div");
     chatInput.setAttribute("id", "wpChatInput");
@@ -157,6 +163,14 @@ async function createChatInput(){
     //Attach Elements to Chat Window
     chatInput.appendChild(sendButton);
     chatWindow.appendChild(chatInput);
+
+    //Add Event Listeners to button and input
+    sendButton.addEventListener("click", sendTextInput);
+    input.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            sendTextInput();
+        }
+    });
 }
 /**
  * Present message in chat window.
@@ -169,7 +183,7 @@ async function presentMessage(message){
     const metadata = message.metadata;
     const messageContainer = document.getElementById("wpChatMessageContainer");
     if(messageContainer === null){
-        console.log("Message Container not found. Please create chat window first.");
+        console.error("Message Container not found. Please create chat window first.");
         return;
     }
     const messageElement = document.createElement("div");
@@ -192,4 +206,17 @@ async function presentMessage(message){
     messageElement.appendChild(messageContent);    
     messageElement.appendChild(messageMetadata);
     messageContainer.appendChild(messageElement);
+}
+/**
+ * Send message from input field.
+ */
+async function sendTextInput(){
+    const input = document.getElementById("wpChatInputField");
+    if(input === null){
+        console.error("Input field not found. Please create chat input first.");
+        return;
+    }
+    const message = input.value;
+    input.value = "";
+    sendMessage(message);
 }

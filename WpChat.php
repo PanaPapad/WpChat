@@ -2,7 +2,7 @@
 /*
 Plugin Name: WpChat
 Description: A plugin that allows you to chat with other users.
-Version: 0.1
+Version: 1.0a
 Author: Panagiotis Papadopoulos
 */
 

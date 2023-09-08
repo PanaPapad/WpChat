@@ -32,9 +32,9 @@
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
     -webkit-transition: all 0.3s ease-in-out;
     -moz-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
     width:10%;
 }
 .wpchat-window-msg{
