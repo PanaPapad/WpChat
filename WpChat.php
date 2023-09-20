@@ -28,6 +28,9 @@ add_filter('script_loader_tag', 'wpchat_add_defer_attribute', 10, 2);
 register_activation_hook(__FILE__, 'wpchat_activate');
 register_deactivation_hook(__FILE__, 'wpchat_deactivate');
 
+//Settings Page
+require_once WPCHAT_PLUGIN_DIR . 'pages/settings.php';
+
 /**
  * Call activate function. If it fails, call wp_die function.
  */

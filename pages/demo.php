@@ -21,3 +21,7 @@
 		<button id="wpChatSendButton" class="wpchat-send-button">Send</button>
 	</div>
 </div>
+<script>
+	wpChatInit();
+	wpCreateChatInput();
+</script>

@@ -39,16 +39,17 @@ function sse_endpoint( WP_REST_Request $request ) {
     flush();
 
     $counter = 60;
-    $last_date = 0;
-    $last_id = 0;
-    if($request->get_param('last_date') !== null){
+    $last_date = $request->get_param('last_date')?? 0;
+    $last_id = $request->get_param('last_id')?? 0;
+    $group_id = $request->get_param('group_id')?? DEFAULT_GROUP_ID;
+    /*if($request->get_param('last_date') !== null){
         $last_date = $request->get_param('last_date');
     }
     if($request->get_param('last_id') !== null){
         $last_id = $request->get_param('last_id');
-    }
+    }*/
     while($counter-- > 0){
-        $messages = wpchat_get_messages(DEFAULT_GROUP_ID,$last_date,$last_id);
+        $messages = wpchat_get_messages($group_id,$last_date,$last_id);
         if(!empty($messages)){
             echo "event: newMessage\ndata: " . json_encode($messages) . "\n\n";
             $last_date = $messages[0]['date'];
