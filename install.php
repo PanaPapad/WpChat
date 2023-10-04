@@ -8,9 +8,15 @@ if(!defined('ABSPATH')) {
  * Check if plugin is installed.
  * @return bool True if plugin is installed, false otherwise.
  */
-function wpchat_check_install(){
+function wpchat_install(){
     //Check for tables in DB
-    return wpchat_create_tables();
+    $success = wpchat_create_tables();
+    if(!$success){
+        return false;
+    }
+    $success = wpchat_create_options();
+
+    return $success;
 }
 /**
  * Create tables in DB.
@@ -64,5 +70,22 @@ function wpchat_delete_tables(){
     }
 
     $wpdb->query('COMMIT');
+    return true;
+}
+/**
+ * Create WP options for settings and Plugin Version.
+ * @return bool True if options created successfully, false otherwise.
+ */
+function wpchat_create_options(){
+    $options = array(
+        'wpchat_version' => WPCHAT_VERSION,
+        'wpchat_settings' => array(
+            'wpchat_default_group' => WPCHAT_DEFAULT_GROUP_ID,
+            'wpchat_ttl_interval' => WPCHAT_TTL_INTERVAL
+        )
+    );
+    foreach($options as $key => $value){
+        add_option($key, $value);
+    }
     return true;
 }

@@ -12,6 +12,7 @@ if(!defined('ABSPATH')) {
 }
 
 //GLOBAL CONSTANTS
+define('WPCHAT_VERSION', '1.0a');
 define('WPCHAT_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WPCHAT_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('WPCHAT_PLUGIN_BASENAME', plugin_basename(__FILE__));
@@ -19,7 +20,9 @@ define('WPCHAT_TABLES',array(
     'MESSAGES' => 'wpchat_messages',
     'GROUPS' => 'wpchat_groups'
 ));
-define('DEFAULT_GROUP_ID',500);
+//Default settings
+define('WPCHAT_DEFAULT_GROUP_ID',500);
+define('WPCHAT_TTL_INTERVAL', 30); //30 secs
 
 //Wordpress Hooks
 add_action('rest_api_init', 'wpchat_register_routes');
@@ -36,7 +39,7 @@ require_once WPCHAT_PLUGIN_DIR . 'pages/settings.php';
  */
 function wpchat_activate(){
     require_once WPCHAT_PLUGIN_DIR . 'install.php';
-    $success = wpchat_check_install();
+    $success = wpchat_install();
     if(!$success){
         wp_die('WpChat plugin failed to activate.');
     }
@@ -63,8 +66,8 @@ function wpchat_register_routes() {
  */
 function wpchat_enqueue_scripts(){
     //Bootstrap
-    wp_enqueue_script('bootstrapJS', WPCHAT_PLUGIN_URL . 'JS/bootstrap.bundle.min.js', array(), '5.3.1', true);
-    wp_enqueue_style('bootstrapCSS', WPCHAT_PLUGIN_URL . 'Styles/bootstrap.min.css', array(), '5.3.1', 'all');
+    //wp_enqueue_script('bootstrapJS', WPCHAT_PLUGIN_URL . 'JS/bootstrap.bundle.min.js', array(), '5.3.1', true);
+    //wp_enqueue_style('bootstrapCSS', WPCHAT_PLUGIN_URL . 'Styles/bootstrap.min.css', array(), '5.3.1', 'all');
 
     wp_enqueue_script('wpchatJS', WPCHAT_PLUGIN_URL . 'JS/wpchat.js', array('jquery'), '0.1', true);
     wp_enqueue_style('wpchatGlobalCSS', WPCHAT_PLUGIN_URL . 'Styles/global.css', array(), '0.1', 'all');

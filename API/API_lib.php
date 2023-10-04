@@ -35,19 +35,16 @@ function sse_endpoint( WP_REST_Request $request ) {
     }
     //Send connection success message
     echo "event: connectionSuccess\ndata: $connection_UUID\n\n";
-    ob_flush();
+    //ob_flush();
     flush();
 
-    $counter = 60;
+    $counter = get_option('wpchat_settings')['wpchat_ttl_interval']??
+        WPCHAT_TTL_INTERVAL;
     $last_date = $request->get_param('last_date')?? 0;
     $last_id = $request->get_param('last_id')?? 0;
-    $group_id = $request->get_param('group_id')?? DEFAULT_GROUP_ID;
-    /*if($request->get_param('last_date') !== null){
-        $last_date = $request->get_param('last_date');
-    }
-    if($request->get_param('last_id') !== null){
-        $last_id = $request->get_param('last_id');
-    }*/
+    $group_id = $request->get_param('group_id')?? 
+        get_option('wpchat_settings')['wpchat_default_group']?? 
+        WPCHAT_DEFAULT_GROUP_ID;
     while($counter-- > 0){
         $messages = wpchat_get_messages($group_id,$last_date,$last_id);
         if(!empty($messages)){
@@ -63,8 +60,6 @@ function sse_endpoint( WP_REST_Request $request ) {
     echo "event: expiredConnection\ndata: expired\n\n";
     ob_flush();
     flush();
-    //echo "event: closeConnection\ndata: close\n\n";<-- On error send this
-    //ob_flush();
 }
 /**
  * Get the latest messages from a group
@@ -91,6 +86,11 @@ function wpchat_get_messages(int $group_id, $last_date = 0, $last_id = 0){
 }
 /**
  * Heartbeat endpoint callback
+ * Used to update the transient for the connection.
+ * This transient is used to check if the connection is still alive.
+ * 
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response
  */
 function heartbeat_endpoint( WP_REST_Request $request ) {
     $connection_UUID = $request->get_param('uuid');
@@ -104,6 +104,12 @@ function heartbeat_endpoint( WP_REST_Request $request ) {
     }
     return new WP_REST_Response(array('success' => true), 200);
 }
+/**
+ * Send message endpoint callback
+ * 
+ * @param WP_REST_Request $request The request object.
+ * @return WP_REST_Response
+ */
 function sendMessage(WP_REST_Request $request){
     $body = $request->get_body();
     $body = json_decode($body, true);
@@ -128,6 +134,14 @@ function sendMessage(WP_REST_Request $request){
     }
     return new WP_REST_Response(array('success' => true), 200);
 }
+/**
+ * Insert message into DB
+ * 
+ * @param int $group_id The group id.
+ * @param string $message The message.
+ * @param int $sender_id The sender id.
+ * @return bool True if message inserted successfully, false otherwise.
+ */
 function wpchat_insert_message(int $group_id, string $message, int $sender_id){
     global $wpdb;
     $sql = "INSERT INTO " . WPCHAT_TABLES['MESSAGES'] . " (group_id, message, sender_id) VALUES (%d, %s, %d)";
