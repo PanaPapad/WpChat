@@ -50,7 +50,7 @@ function sse_endpoint( WP_REST_Request $request ) {
         if(!empty($messages)){
             echo "event: newMessage\ndata: " . json_encode($messages) . "\n\n";
             $last_date = $messages[0]['date'];
-            $last_id = $messages[0]['id'];
+            $last_id = $messages[0]['message_id'];
             ob_flush();
             flush();
         }
@@ -66,13 +66,17 @@ function sse_endpoint( WP_REST_Request $request ) {
  */
 function wpchat_get_messages(int $group_id, $last_date = 0, $last_id = 0){
     //delete_transient('wpchat_last_messages_group_' . $group_id); //FOR TESTING
-    $expiration_time = 120;//IN SECONDS
+    $expiration_time = 60;//IN SECONDS
     $cached_data = get_transient('wpchat_last_messages_group_' . $group_id);
     if($cached_data !== false && $last_date === 0){
         return $cached_data;
     }
     global $wpdb;
-    $sql = "SELECT id,message,date,sender_id FROM " . WPCHAT_TABLES['MESSAGES'] . " WHERE group_id = %d AND ((date > %s) OR (date = %s AND id > %d)) ORDER BY date DESC LIMIT 20";
+    $sql = "SELECT MSG.id 'message_id',MSG.message,MSG.date,USR.user_nicename 'username',MSG.sender_id 'sender' FROM
+        " . WPCHAT_TABLES['MESSAGES'] . " as MSG 
+        INNER JOIN wp_users as USR on MSG.sender_id=USR.id 
+        WHERE MSG.group_id = %d AND ((MSG.date > %s) OR (MSG.date = %s AND MSG.id > %d)) 
+        ORDER BY MSG.date DESC LIMIT 20";
     $sql = $wpdb->prepare($sql, $group_id, $last_date, $last_date, $last_id);
     $messages = $wpdb->get_results($sql,ARRAY_A);
     if($messages === false){

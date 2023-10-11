@@ -12,6 +12,10 @@
     --wpchatMaxHeight: 80vh;
 }
 .wpchat-window{
+    min-width: 50vw;
+    max-width: 50vw;
+    min-height: 50vh;
+    max-height: 50vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -22,15 +26,17 @@
     flex-direction: row;
     justify-content: center;
     align-items: stretch;
-    min-width: 70vw;
-    max-width: 85vw;
+    min-width: inherit;
+    max-width: inherit;
+    min-height: 4vh;
+    max-height: 4vh;
 }
 .wpchat-send-button {
     background: #00a0d2;
     color: #fff;
     border: 0;
-    padding: 10px 20px;
-    font-size: 16px;
+    padding: auto;
+    font-size: 1rem;
     cursor: pointer;
     -webkit-transition: all 0.3s ease-in-out;
     -moz-transition: all 0.3s ease-in-out;
@@ -38,35 +44,60 @@
     width:10%;
 }
 .wpchat-window-msg{
-    min-width: 70vw;
-    max-width: 85vw;
+    min-width: inherit;
+    max-width: inherit;
+    min-height: 46vh;
+    max-height: 46vh;
     background-color: var(--WpchatLightGray);
+    overflow-y: scroll;
 }
 .wpchat-input-field{
     border: 1px solid var(--WpchatLightBlue);
     width:90%
 }
-.wpchat-msg{
+.wpchat-msg-left{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: start;
+    align-items: center;
     padding: 3px;
 }
-.wpchat-msg-content{
+.wpchat-msg-right{
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 3px;
+}
+.wpchat-msg-content-left{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: flex-start;
-    padding: 8px;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
     border-radius: 10px;
-    background-color: var(--WpchatWhite);
+    background-color: var(--WpchatLightBlue);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--WpchatDarkGray);
+}
+.wpchat-msg-content-right{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 10px;
+    background-color: var(--wpchatVeryLightBlue);
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--WpchatDarkGray);
 }
 .wpchat-msg-info{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
-    align-items: start;
+    align-items: center;
     padding: 8px;
 }
 .wpchat-msg-text{

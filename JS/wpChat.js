@@ -1,12 +1,53 @@
 // Version: 1.0.0
 //GLOBALS
-const DATETIME_FORMAT_OPTIONS = {
-    weekday: 'short',
-    formatMatcher: 'best fit',
+const DATE_FORMATTER = {
+    LONG_DATE :{
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        formatMatcher: 'best fit',
+        hour: 'numeric',
+        minute: 'numeric'
+    },
+    SHORT_DATE :{
+        weekday: 'short',
+        hour: 'numeric',
+        minute: 'numeric'
+    },
+    SHORT_TIME :{
+        hour: 'numeric',
+        minute: 'numeric'
+    },
+    /**
+     * Format date.
+     * @param {Date} date Date to be formatted.
+     * @param {string} format Format of the date. Default is LONG_DATE.
+     * @returns {string} Formatted date.
+     **/
+    format: function(date){
+        //Date < 24 hours ago
+        const now = new Date();
+        const diff = now.getTime() - date.getTime();
+        if(diff < 86400000){
+            const formatter = new Intl.DateTimeFormat('en-US', this.SHORT_TIME);
+            return formatter.format(date);
+        }
+        //Date < 7 days ago
+        if(diff < 604800000){
+            const formatter = new Intl.DateTimeFormat('en-US', this.SHORT_DATE);
+            return formatter.format(date);
+        }
+        //Date > 7 days ago
+        const formatter = new Intl.DateTimeFormat('en-US', this.LONG_DATE);
+        return formatter.format(date);
+    }
 }
+//GLOBALS
 var LAST_DATE = "";
 var LAST_ID = 0;
 var GROUP_ID = 500;//Default Group ID
+
 
 /**
  * Initialize WPChat.
@@ -59,13 +100,14 @@ async function createSource(){
         const data = JSON.parse(e.data);
         //Get latest message date and id to be used in next request
         LAST_DATE = data[0].date;
-        LAST_ID = data[0].id;
+        LAST_ID = data[0].message_id;
         //Most recent message is at the start of the array
         for(let i=data.length-1; i>=0; i--){
             const date = new Date(data[i].date);
             const message = {
                 "data": data[i].message,
-                "metadata": "Jon Doe, "+date.toLocaleTimeString('en-US',DATETIME_FORMAT_OPTIONS)
+                "metadata": `${data[i].username}, `+DATE_FORMATTER.format(date),
+                "isMine": data[i].sender === WPCHAT.current_user_id
             }
             presentMessage(message);
         }
@@ -134,7 +176,7 @@ async function createChatWindow(element_id){
     }
 }
 /**
- * Create Chat Input and attach to element with provided ID.
+ * Create Chat Input and attach it to the Chat Window.
  */
 async function createChatInput(){
     const chatWindow = document.getElementById("wpChatWindow");
@@ -187,10 +229,20 @@ async function presentMessage(message){
         return;
     }
     const messageElement = document.createElement("div");
-    messageElement.setAttribute("class", "wpchat-msg");
+    if(message.isMine){
+        messageElement.setAttribute("class", "wpchat-msg-left");
+    }
+    else{
+        messageElement.setAttribute("class", "wpchat-msg-right");
+    }
     //Add Message Content
     const messageContent = document.createElement("div");
-    messageContent.setAttribute("class", "wpchat-msg-content");
+    if(message.isMine){
+        messageContent.setAttribute("class", "wpchat-msg-content-left");
+    }
+    else{
+        messageContent.setAttribute("class", "wpchat-msg-content-right");
+    }
     const messageText = document.createElement("p");
     messageText.setAttribute("class", "wpchat-msg-text");
     messageText.innerHTML = data;
@@ -206,6 +258,7 @@ async function presentMessage(message){
     messageElement.appendChild(messageContent);    
     messageElement.appendChild(messageMetadata);
     messageContainer.appendChild(messageElement);
+    messageContainer.scrollTop = messageContainer.scrollHeight;
 }
 /**
  * Send message from input field.

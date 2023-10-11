@@ -69,8 +69,8 @@ function wpchat_enqueue_scripts(){
     //wp_enqueue_script('bootstrapJS', WPCHAT_PLUGIN_URL . 'JS/bootstrap.bundle.min.js', array(), '5.3.1', true);
     //wp_enqueue_style('bootstrapCSS', WPCHAT_PLUGIN_URL . 'Styles/bootstrap.min.css', array(), '5.3.1', 'all');
 
-    wp_enqueue_script('wpchatJS', WPCHAT_PLUGIN_URL . 'JS/wpchat.js', array('jquery'), '0.1', true);
-    wp_enqueue_style('wpchatGlobalCSS', WPCHAT_PLUGIN_URL . 'Styles/global.css', array(), '0.1', 'all');
+    wp_enqueue_script('wpchatJS', WPCHAT_PLUGIN_URL . 'JS/wpchat.js', array('jquery'), '1.0a', true);
+    wp_enqueue_style('wpchatGlobalCSS', WPCHAT_PLUGIN_URL . 'Styles/global.css', array(), '1.0a', 'all');
     wp_localize_script('wpchatJS', 'WPCHAT', array(
         'baseUrl' => esc_url_raw(rest_url('wpchat/v1')),
         'nonce' => wp_create_nonce('wp_rest'),
